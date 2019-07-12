@@ -18,91 +18,6 @@ Info="${Green_font_prefix}[信息info]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误error]${Font_color_suffix}"
 Tip="${Green_font_prefix}[注意tip]${Font_color_suffix}"
 
-#安装BBR内核 bbr install function
-installbbr(){
-	kernel_version="4.11.8"
-	if [[ "${release}" == "centos" ]]; then
-		rpm --import http://${github}/bbr/${release}/RPM-GPG-KEY-elrepo.org
-		yum install -y http://${github}/bbr/${release}/${version}/${bit}/kernel-ml-${kernel_version}.rpm
-		yum remove -y kernel-headers
-		yum install -y http://${github}/bbr/${release}/${version}/${bit}/kernel-ml-headers-${kernel_version}.rpm
-		yum install -y http://${github}/bbr/${release}/${version}/${bit}/kernel-ml-devel-${kernel_version}.rpm
-	elif [[ "${release}" == "debian" || "${release}" == "ubuntu" ]]; then
-		mkdir bbr && cd bbr
-		wget http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.0.0_1.0.1t-1+deb8u10_amd64.deb
-		wget -N --no-check-certificate http://${github}/bbr/debian-ubuntu/linux-headers-${kernel_version}-all.deb
-		wget -N --no-check-certificate http://${github}/bbr/debian-ubuntu/${bit}/linux-headers-${kernel_version}.deb
-		wget -N --no-check-certificate http://${github}/bbr/debian-ubuntu/${bit}/linux-image-${kernel_version}.deb
-	
-		dpkg -i libssl1.0.0_1.0.1t-1+deb8u10_amd64.deb
-		dpkg -i linux-headers-${kernel_version}-all.deb
-		dpkg -i linux-headers-${kernel_version}.deb
-		dpkg -i linux-image-${kernel_version}.deb
-		cd .. && rm -rf bbr
-	fi
-	detele_kernel
-	BBR_grub
-	echo -e "${Tip} 重启VPS后，请重新运行脚本开启${Red_font_prefix}BBR/BBR魔改版${Font_color_suffix}"
-	stty erase '^H' && read -p "需要重启VPS后，才能开启BBR/BBR魔改版，是否现在重启 ? [Y/n] :" yn
-	[ -z "${yn}" ] && yn="y"
-	if [[ $yn == [Yy] ]]; then
-		echo -e "${Info} VPS 重启中..."
-		reboot
-	fi
-}
-
-#安装BBRplus内核
-installbbrplus(){
-	kernel_version="4.14.129-bbrplus"
-	if [[ "${release}" == "centos" ]]; then
-		wget -N --no-check-certificate https://${github}/bbrplus/${release}/${version}/kernel-${kernel_version}.rpm
-		yum install -y kernel-${kernel_version}.rpm
-		rm -f kernel-${kernel_version}.rpm
-		kernel_version="4.14.129_bbrplus" #fix a bug
-	elif [[ "${release}" == "debian" || "${release}" == "ubuntu" ]]; then
-		mkdir bbrplus && cd bbrplus
-		wget -N --no-check-certificate http://${github}/bbrplus/debian-ubuntu/${bit}/linux-headers-${kernel_version}.deb
-		wget -N --no-check-certificate http://${github}/bbrplus/debian-ubuntu/${bit}/linux-image-${kernel_version}.deb
-		dpkg -i linux-headers-${kernel_version}.deb
-		dpkg -i linux-image-${kernel_version}.deb
-		cd .. && rm -rf bbrplus
-	fi
-	detele_kernel
-	BBR_grub
-	echo -e "${Tip} 重启VPS后，请重新运行脚本开启${Red_font_prefix}BBRplus${Font_color_suffix}"
-	stty erase '^H' && read -p "需要重启VPS后，才能开启BBRplus，是否现在重启 ? [Y/n] :" yn
-	[ -z "${yn}" ] && yn="y"
-	if [[ $yn == [Yy] ]]; then
-		echo -e "${Info} VPS 重启中..."
-		reboot
-	fi
-}
-
-#安装Lotserver内核
-installlot(){
-	if [[ "${release}" == "centos" ]]; then
-		rpm --import http://${github}/lotserver/${release}/RPM-GPG-KEY-elrepo.org
-		yum remove -y kernel-firmware
-		yum install -y http://${github}/lotserver/${release}/${version}/${bit}/kernel-firmware-${kernel_version}.rpm
-		yum install -y http://${github}/lotserver/${release}/${version}/${bit}/kernel-${kernel_version}.rpm
-		yum remove -y kernel-headers
-		yum install -y http://${github}/lotserver/${release}/${version}/${bit}/kernel-headers-${kernel_version}.rpm
-		yum install -y http://${github}/lotserver/${release}/${version}/${bit}/kernel-devel-${kernel_version}.rpm
-	elif [[ "${release}" == "ubuntu" ]]; then
-		bash <(wget --no-check-certificate -qO- "http://${github}/Debian_Kernel.sh")
-	elif [[ "${release}" == "debian" ]]; then
-		bash <(wget --no-check-certificate -qO- "http://${github}/Debian_Kernel.sh")
-	fi
-	detele_kernel
-	BBR_grub
-	echo -e "${Tip} 重启VPS后，请重新运行脚本开启${Red_font_prefix}Lotserver${Font_color_suffix}"
-	stty erase '^H' && read -p "需要重启VPS后，才能开启Lotserver，是否现在重启 ? [Y/n] :" yn
-	[ -z "${yn}" ] && yn="y"
-	if [[ $yn == [Yy] ]]; then
-		echo -e "${Info} VPS 重启中..."
-		reboot
-	fi
-}
 
 #启用BBR
 startbbr(){
@@ -111,15 +26,6 @@ startbbr(){
 	echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 	sysctl -p
 	echo -e "${Info}BBR启动成功！"
-}
-
-#启用BBRplus
-startbbrplus(){
-	remove_all
-	echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
-	echo "net.ipv4.tcp_congestion_control=bbrplus" >> /etc/sysctl.conf
-	sysctl -p
-	echo -e "${Info}BBRplus启动成功！"
 }
 
 #编译并启用BBR魔改
@@ -198,19 +104,6 @@ startbbrmod_nanqinlang(){
 	echo "net.ipv4.tcp_congestion_control=nanqinlang" >> /etc/sysctl.conf
 	sysctl -p
 	echo -e "${Info}魔改版BBR启动成功！"
-}
-
-#启用Lotserver
-startlotserver(){
-	remove_all
-	if [[ "${release}" == "centos" ]]; then
-		yum install ethtool
-	else
-		apt-get update
-		apt-get install ethtool
-	fi
-	bash <(wget --no-check-certificate -qO- https://github.com/MoeClub/lotServer/raw/master/Install.sh) install
-	start_menu
 }
 
 #卸载全部加速
@@ -348,10 +241,10 @@ Update_Shell(){
 start_menu(){
 clear
 echo && 
-echo -e " TCP加速 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  -- 就是爱生活 | 94ish.me --
+echo -e " v2ray install controller ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+  -- leejungwoo --
   
- ${Green_font_prefix}0.${Font_color_suffix} 升级脚本 update shell
+ ${Green_font_prefix}0.${Font_color_suffix} Update Shell
 ————————————内核管理————————————
  ${Green_font_prefix}1.${Font_color_suffix} 安装 BBR/BBR魔改版内核
  ${Green_font_prefix}2.${Font_color_suffix} 安装 BBRplus版内核 
@@ -370,9 +263,10 @@ echo -e " TCP加速 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Fon
 echo
 	check_status
 	if [[ ${kernel_status} == "noinstall" ]]; then
-		echo -e " 当前状态current state: ${Green_font_prefix}未安装noinstall${Font_color_suffix} 加速内核kernel ${Red_font_prefix}请先安装内核install kernel first${Font_color_suffix}"
+		echo -e " Current state: ${Green_font_prefix}Not install ${Font_color_suffix} Acc. kernel ${Red_font_prefix} Please install kernel first${Font_color_suffix}"
 	else
-		echo -e " 当前状态current state: ${Green_font_prefix}已安装istalled${Font_color_suffix} ${_font_prefix}${kernel_status}${Font_color_suffix} 加速内核kernel , ${Green_font_prefix}${run_status}${Font_color_suffix}"
+		echo -e " ${release} | ${version} | ${bit} | ${kernel_version} | 
+        Current state: ${Green_font_prefix} istalled${Font_color_suffix} ${_font_prefix}${kernel_status}${Font_color_suffix} 加速内核kernel , ${Green_font_prefix}${run_status}${Font_color_suffix}"
 		
 	fi
 echo
