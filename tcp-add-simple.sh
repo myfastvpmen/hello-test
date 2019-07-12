@@ -3,11 +3,10 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
 #=================================================
-#	System Required: CentOS 6/7,Debian 8/9,Ubuntu 16+
-#	Description: BBR+BBR魔改版+BBRplus+Lotserver
+#	System Required: Debian 8/9,Ubuntu 16+
+#	Description: V2ray + Optimaize
 #	Version: 1.4.1
-#	Author: 千影,cx9208, LEECHEE
-#	Blog: https://www.94ish.me/
+#	Author: LEECHEE
 #=================================================
 
 sh_ver="1.4.1"
@@ -25,6 +24,7 @@ startbbr(){
 	echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 	sysctl -p
 	echo -e "${Info}TCP Acc. BBR added complate！"
+    start_menu
 }
 
 
@@ -32,18 +32,22 @@ startbbr(){
 v2ray-install(){
 	source <(curl -sL https://git.io/fNgqx)
 	echo -e "${Info}v2ray install complate！"
+    start_menu
 }
 
 #v2ray reinstall -force
 v2ray-reinstall(){
    	source <(curl -sL https://git.io/fNgqx) -f
 	echo -e "${Info}v2ray reinstall complate！"
+    start_menu
 }
 
 #prepare for install
 v2ray-prepare(){
     apt-get update && apt-get upgrade -y
     apt-get install python3-pip -y
+    echo -e "${Info}apt-get up to date！"
+    start_menu
 }
 
 #prepare for install
@@ -52,6 +56,8 @@ v2ray-timesync(){
     /etc/init.d/ntp status
     /etc/init.d/ntp stop
     ntpdate time.bora.net
+    start_menu
+    echo -e "${Info}Timesync compalte！"
 }
 
 
@@ -111,14 +117,16 @@ net.ipv4.ip_forward = 1
 
 ">>/etc/sysctl.conf
 	sysctl -p
-
-    echo "suscess add script!!
-    
-            "
+    echo "
+    ${Info}suscess add /etc/sysctl.conf script!!
+    "
 	echo "* soft nofile 1000000
 * hard nofile 1000000">>/etc/security/limits.conf
 	echo "ulimit -SHn 1000000">>/etc/profile
     ulimit -SHn 1000000
+    echo "
+    ${Info}suscess add security/limits.conf !!
+    "
     read -p "Need to reboot server ? [Y/n] :" yn
 	[ -z "${yn}" ] && yn="y"
 	if [[ $yn == [Yy] ]]; then
@@ -130,19 +138,19 @@ net.ipv4.ip_forward = 1
 Update_Shell(){
 	echo -e "current version is [ ${sh_ver} ]，..."
 	sh_new_ver=$(wget --no-check-certificate -qO- "http://${github}/tcp.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
-	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && start_menu
+	[[ -z ${sh_new_ver} ]] && echo -e "${Error} someting wrong !" && start_menu
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
-		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
-		read -p "(默认: y):" yn
+		echo -e "there is new version [ ${sh_new_ver} ]，update？[Y/n]"
+		read -p "(confirm: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
 			wget -N --no-check-certificate http://${github}/tcp.sh && chmod +x tcp.sh
-			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
+			echo -e "this version is[ ${sh_new_ver} ] !"
 		else
-			echo && echo "	已取消..." && echo
+			echo && echo "	cancle..." && echo
 		fi
 	else
-		echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
+		echo -e "it is latest version [ ${sh_new_ver} ] !"
 		sleep 5s
 	fi
 }
