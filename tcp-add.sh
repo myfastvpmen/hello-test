@@ -10,7 +10,7 @@ export PATH
 #	Blog: https://www.94ish.me/
 #=================================================
 
-sh_ver="1.3.1"
+sh_ver="1.4.1"
 github="raw.githubusercontent.com/chiakge/Linux-NetSpeed/master"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
@@ -329,7 +329,8 @@ Update_Shell(){
 #开始菜单
 start_menu(){
 clear
-echo && echo -e " TCP加速 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+echo && 
+echo -e " TCP加速 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- 就是爱生活 | 94ish.me --
   
  ${Green_font_prefix}0.${Font_color_suffix} 升级脚本 update shell
@@ -347,13 +348,13 @@ echo && echo -e " TCP加速 一键安装管理脚本 ${Red_font_prefix}[v${sh_ve
  ${Green_font_prefix}9.${Font_color_suffix} 卸载全部加速 delete all
  ${Green_font_prefix}10.${Font_color_suffix} 系统配置优化 system optimaize
  ${Green_font_prefix}11.${Font_color_suffix} 退出脚本 exit
-————————————————————————————————" && echo
-
+————————————————————————————————" && 
+echo
 	check_status
 	if [[ ${kernel_status} == "noinstall" ]]; then
-		echo -e " 当前状态: ${Green_font_prefix}未安装${Font_color_suffix} 加速内核 ${Red_font_prefix}请先安装内核${Font_color_suffix}"
+		echo -e " 当前状态current state: ${Green_font_prefix}未安装noinstall${Font_color_suffix} 加速内核kernel ${Red_font_prefix}请先安装内核install kernel first${Font_color_suffix}"
 	else
-		echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} ${_font_prefix}${kernel_status}${Font_color_suffix} 加速内核 , ${Green_font_prefix}${run_status}${Font_color_suffix}"
+		echo -e " 当前状态current state: ${Green_font_prefix}已安装istalled${Font_color_suffix} ${_font_prefix}${kernel_status}${Font_color_suffix} 加速内核kernel , ${Green_font_prefix}${run_status}${Font_color_suffix}"
 		
 	fi
 echo
@@ -621,7 +622,7 @@ check_status(){
 				run_status="启动失败"
 			fi
 		else 
-			run_status="未安装加速模块"
+			run_status="未安装加速模块No acceleration module installed-ls"
 		fi
 	elif [[ ${kernel_status} == "BBR" ]]; then
 		run_status=`grep "net.ipv4.tcp_congestion_control" /etc/sysctl.conf | awk -F "=" '{print $2}'`
@@ -647,7 +648,7 @@ check_status(){
 				run_status="暴力BBR魔改版启动失败"
 			fi
 		else 
-			run_status="未安装加速模块"
+			run_status="未安装加速模块No acceleration module installed-bbr"
 		fi
 	elif [[ ${kernel_status} == "BBRplus" ]]; then
 		run_status=`grep "net.ipv4.tcp_congestion_control" /etc/sysctl.conf | awk -F "=" '{print $2}'`
@@ -659,7 +660,7 @@ check_status(){
 				run_status="BBRplus启动失败"
 			fi
 		else 
-			run_status="未安装加速模块"
+			run_status="未安装加速模块No acceleration module installed-bbr+"
 		fi
 	fi
 }
