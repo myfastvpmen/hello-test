@@ -21,7 +21,6 @@ Tip="${Green_font_prefix}[tip]${Font_color_suffix}"
 
 #add BBR code
 startbbr(){
-	remove_all
 	echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
 	echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 	sysctl -p
@@ -31,18 +30,29 @@ startbbr(){
 
 #v2ray install
 v2ray-install(){
-	remove_all
-    source <(curl -sL https://git.io/fNgqx)
+	source <(curl -sL https://git.io/fNgqx)
 	echo -e "${Info}v2ray install complate！"
 }
 
-#v2ray install
+#v2ray reinstall -force
 v2ray-reinstall(){
-	remove_all
-    source <(curl -sL https://git.io/fNgqx) -f
+   	source <(curl -sL https://git.io/fNgqx) -f
 	echo -e "${Info}v2ray reinstall complate！"
 }
 
+#prepare for install
+v2ray-prepare(){
+    apt-get update && apt-get upgrade -y
+    apt-get install python3-pip -y
+}
+
+#prepare for install
+v2ray-timesync(){
+    ntpdate time.bora.net
+    /etc/init.d/ntp status
+    /etc/init.d/ntp stop
+    ntpdate time.bora.net
+}
 
 
 #优化系统配置
@@ -139,16 +149,17 @@ Update_Shell(){
 
 #开始菜单
 start_menu(){
-clear
 echo && 
 echo -e " v2ray install controller ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- leejungwoo --
   
- ${Green_font_prefix}1.${Font_color_suffix} V2ray install
- ${Green_font_prefix}2.${Font_color_suffix} V2ray reinstall
- ${Green_font_prefix}3.${Font_color_suffix} TCP-BBR add
- ${Green_font_prefix}4.${Font_color_suffix} TCP system optimaize add
- ${Green_font_prefix}5.${Font_color_suffix} EXIT
+ ${Green_font_prefix}1.${Font_color_suffix} V2ray prepare
+ ${Green_font_prefix}2.${Font_color_suffix} V2ray timesync
+ ${Green_font_prefix}3.${Font_color_suffix} V2ray install
+ ${Green_font_prefix}4.${Font_color_suffix} V2ray reinstall
+ ${Green_font_prefix}5.${Font_color_suffix} TCP-BBR add
+ ${Green_font_prefix}6.${Font_color_suffix} TCP system optimaize add
+ ${Green_font_prefix}7.${Font_color_suffix} EXIT
 ————————————————————————————————" && 
 echo
 	check_status
@@ -165,18 +176,24 @@ echo
 read -p " please input number [0-11]:" num
 case "$num" in
 	1)
+	v2ray-prepare
+	;;
+    2)
+	v2ray-timesync
+	;;
+    3)
 	v2ray-install
 	;;
-	2)
+	4)
 	v2ray-reinstall
 	;;
-	3)
+	5)
 	startbbr
 	;;
-	4)
+	6)
 	optimizing_system
 	;;
-	5)
+	7)
 	exit 1
 	;;
 	*)
