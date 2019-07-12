@@ -5,18 +5,18 @@ export PATH
 #=================================================
 #	System Required: CentOS 6/7,Debian 8/9,Ubuntu 16+
 #	Description: BBR+BBR魔改版+BBRplus+Lotserver
-#	Version: 1.3.1
-#	Author: 千影,cx9208
+#	Version: 1.4.1
+#	Author: 千影,cx9208, LEECHEE
 #	Blog: https://www.94ish.me/
 #=================================================
 
 sh_ver="1.4.1"
-github="raw.githubusercontent.com/chiakge/Linux-NetSpeed/master"
+github="raw.githubusercontent.com/myfastvpmen/hello-test/master"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
-Info="${Green_font_prefix}[信息info]${Font_color_suffix}"
-Error="${Red_font_prefix}[错误error]${Font_color_suffix}"
-Tip="${Green_font_prefix}[注意tip]${Font_color_suffix}"
+Info="${Green_font_prefix}[info]${Font_color_suffix}"
+Error="${Red_font_prefix}[error]${Font_color_suffix}"
+Tip="${Green_font_prefix}[tip]${Font_color_suffix}"
 
 
 #add BBR code
@@ -63,7 +63,10 @@ optimizing_system(){
 	sed -i '/net.ipv4.tcp_timestamps/d' /etc/sysctl.conf
 	sed -i '/net.ipv4.tcp_max_orphans/d' /etc/sysctl.conf
 	sed -i '/net.ipv4.ip_forward/d' /etc/sysctl.conf
-	echo "
+	echo "start add script
+    
+            "
+    echo "
 
 fs.file-max = 1000000
 fs.inotify.max_user_instances = 8192
@@ -98,20 +101,24 @@ net.ipv4.ip_forward = 1
 
 ">>/etc/sysctl.conf
 	sysctl -p
+
+    echo "suscess add script!!
+    
+            "
 	echo "* soft nofile 1000000
 * hard nofile 1000000">>/etc/security/limits.conf
 	echo "ulimit -SHn 1000000">>/etc/profile
+    ulimit -SHn 1000000
     read -p "Need to reboot server ? [Y/n] :" yn
 	[ -z "${yn}" ] && yn="y"
 	if [[ $yn == [Yy] ]]; then
-        ulimit -SHn 1000000
-		echo -e "${Info} Rebooting now..."
+        echo -e "${Info} Rebooting now..."
 		reboot
 	fi
 }
 #更新脚本
 Update_Shell(){
-	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
+	echo -e "current version is [ ${sh_ver} ]，..."
 	sh_new_ver=$(wget --no-check-certificate -qO- "http://${github}/tcp.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && start_menu
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
@@ -137,21 +144,11 @@ echo &&
 echo -e " v2ray install controller ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- leejungwoo --
   
- ${Green_font_prefix}0.${Font_color_suffix} Update Shell
-————————————kernel manage————————————
  ${Green_font_prefix}1.${Font_color_suffix} V2ray install
  ${Green_font_prefix}2.${Font_color_suffix} V2ray reinstall
- ${Green_font_prefix}3.${Font_color_suffix} 安装 Lotserver(锐速)内核
-————————————Acc. kernel mange————————————
- ${Green_font_prefix}4.${Font_color_suffix} 使用BBR加速
- ${Green_font_prefix}5.${Font_color_suffix} 使用BBR魔改版加速
- ${Green_font_prefix}6.${Font_color_suffix} 使用暴力BBR魔改版加速(不支持部分系统)
- ${Green_font_prefix}7.${Font_color_suffix} 使用BBRplus版加速
- ${Green_font_prefix}8.${Font_color_suffix} 使用Lotserver(锐速)加速
-————————————addtional funtion————————————
- ${Green_font_prefix}9.${Font_color_suffix} 卸载全部加速 delete all
- ${Green_font_prefix}10.${Font_color_suffix} 系统配置优化 system optimaize
- ${Green_font_prefix}11.${Font_color_suffix} 退出脚本 exit
+ ${Green_font_prefix}3.${Font_color_suffix} TCP-BBR add
+ ${Green_font_prefix}4.${Font_color_suffix} TCP system optimaize add
+ ${Green_font_prefix}5.${Font_color_suffix} EXIT
 ————————————————————————————————" && 
 echo
 	check_status
@@ -167,9 +164,6 @@ echo
 echo
 read -p " please input number [0-11]:" num
 case "$num" in
-	0)
-	Update_Shell
-	;;
 	1)
 	v2ray-install
 	;;
@@ -177,30 +171,12 @@ case "$num" in
 	v2ray-reinstall
 	;;
 	3)
-	check_sys_Lotsever
-	;;
-	4)
 	startbbr
 	;;
-	5)
-	startbbrmod
-	;;
-	6)
-	startbbrmod_nanqinlang
-	;;
-	7)
-	startbbrplus
-	;;
-	8)
-	startlotserver
-	;;
-	9)
-	remove_all
-	;;
-	10)
+	4)
 	optimizing_system
 	;;
-	11)
+	5)
 	exit 1
 	;;
 	*)
