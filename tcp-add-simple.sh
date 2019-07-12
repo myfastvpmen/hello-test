@@ -19,138 +19,31 @@ Error="${Red_font_prefix}[错误error]${Font_color_suffix}"
 Tip="${Green_font_prefix}[注意tip]${Font_color_suffix}"
 
 
-#启用BBR
+#add BBR code
 startbbr(){
 	remove_all
 	echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
 	echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 	sysctl -p
-	echo -e "${Info}BBR启动成功！"
+	echo -e "${Info}TCP Acc. BBR added complate！"
 }
 
-#编译并启用BBR魔改
-startbbrmod(){
+
+#v2ray install
+v2ray-install(){
 	remove_all
-	if [[ "${release}" == "centos" ]]; then
-		yum install -y make gcc
-		mkdir bbrmod && cd bbrmod
-		wget -N --no-check-certificate http://${github}/bbr/tcp_tsunami.c
-		echo "obj-m:=tcp_tsunami.o" > Makefile
-		make -C /lib/modules/$(uname -r)/build M=`pwd` modules CC=/usr/bin/gcc
-		chmod +x ./tcp_tsunami.ko
-		cp -rf ./tcp_tsunami.ko /lib/modules/$(uname -r)/kernel/net/ipv4
-		insmod tcp_tsunami.ko
-		depmod -a
-	else
-		apt-get update
-		if [[ "${release}" == "ubuntu" && "${version}" = "14" ]]; then
-			apt-get -y install build-essential
-			apt-get -y install software-properties-common
-			add-apt-repository ppa:ubuntu-toolchain-r/test -y
-			apt-get update
-		fi
-		apt-get -y install make gcc
-		mkdir bbrmod && cd bbrmod
-		wget -N --no-check-certificate http://${github}/bbr/tcp_tsunami.c
-		echo "obj-m:=tcp_tsunami.o" > Makefile
-		ln -s /usr/bin/gcc /usr/bin/gcc-4.9
-		make -C /lib/modules/$(uname -r)/build M=`pwd` modules CC=/usr/bin/gcc-4.9
-		install tcp_tsunami.ko /lib/modules/$(uname -r)/kernel
-		cp -rf ./tcp_tsunami.ko /lib/modules/$(uname -r)/kernel/net/ipv4
-		depmod -a
-	fi
-	
-
-	echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
-	echo "net.ipv4.tcp_congestion_control=tsunami" >> /etc/sysctl.conf
-	sysctl -p
-    cd .. && rm -rf bbrmod
-	echo -e "${Info}魔改版BBR启动成功！"
+    source <(curl -sL https://git.io/fNgqx)
+	echo -e "${Info}v2ray install complate！"
 }
 
-#编译并启用BBR魔改
-startbbrmod_nanqinlang(){
+#v2ray install
+v2ray-reinstall(){
 	remove_all
-	if [[ "${release}" == "centos" ]]; then
-		yum install -y make gcc
-		mkdir bbrmod && cd bbrmod
-		wget -N --no-check-certificate https://raw.githubusercontent.com/chiakge/Linux-NetSpeed/master/bbr/centos/tcp_nanqinlang.c
-		echo "obj-m := tcp_nanqinlang.o" > Makefile
-		make -C /lib/modules/$(uname -r)/build M=`pwd` modules CC=/usr/bin/gcc
-		chmod +x ./tcp_nanqinlang.ko
-		cp -rf ./tcp_nanqinlang.ko /lib/modules/$(uname -r)/kernel/net/ipv4
-		insmod tcp_nanqinlang.ko
-		depmod -a
-	else
-		apt-get update
-		if [[ "${release}" == "ubuntu" && "${version}" = "14" ]]; then
-			apt-get -y install build-essential
-			apt-get -y install software-properties-common
-			add-apt-repository ppa:ubuntu-toolchain-r/test -y
-			apt-get update
-		fi
-		apt-get -y install make gcc-4.9
-		mkdir bbrmod && cd bbrmod
-		wget -N --no-check-certificate https://raw.githubusercontent.com/chiakge/Linux-NetSpeed/master/bbr/tcp_nanqinlang.c
-		echo "obj-m := tcp_nanqinlang.o" > Makefile
-		make -C /lib/modules/$(uname -r)/build M=`pwd` modules CC=/usr/bin/gcc-4.9
-		install tcp_nanqinlang.ko /lib/modules/$(uname -r)/kernel
-		cp -rf ./tcp_nanqinlang.ko /lib/modules/$(uname -r)/kernel/net/ipv4
-		depmod -a
-	fi
-	
-
-	echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
-	echo "net.ipv4.tcp_congestion_control=nanqinlang" >> /etc/sysctl.conf
-	sysctl -p
-	echo -e "${Info}魔改版BBR启动成功！"
+    source <(curl -sL https://git.io/fNgqx) -f
+	echo -e "${Info}v2ray reinstall complate！"
 }
 
-#卸载全部加速
-remove_all(){
-	rm -rf bbrmod
-	sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
-    sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
-    sed -i '/fs.file-max/d' /etc/sysctl.conf
-	sed -i '/net.core.rmem_max/d' /etc/sysctl.conf
-	sed -i '/net.core.wmem_max/d' /etc/sysctl.conf
-	sed -i '/net.core.rmem_default/d' /etc/sysctl.conf
-	sed -i '/net.core.wmem_default/d' /etc/sysctl.conf
-	sed -i '/net.core.netdev_max_backlog/d' /etc/sysctl.conf
-	sed -i '/net.core.somaxconn/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_syncookies/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_tw_reuse/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_tw_recycle/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_fin_timeout/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_keepalive_time/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.ip_local_port_range/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_max_syn_backlog/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_max_tw_buckets/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_rmem/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_wmem/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_mtu_probing/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.ip_forward/d' /etc/sysctl.conf
-	sed -i '/fs.inotify.max_user_instances/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_syncookies/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_fin_timeout/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_tw_reuse/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_max_syn_backlog/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.ip_local_port_range/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_max_tw_buckets/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.route.gc_timeout/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_synack_retries/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_syn_retries/d' /etc/sysctl.conf
-	sed -i '/net.core.somaxconn/d' /etc/sysctl.conf
-	sed -i '/net.core.netdev_max_backlog/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_timestamps/d' /etc/sysctl.conf
-	sed -i '/net.ipv4.tcp_max_orphans/d' /etc/sysctl.conf
-	if [[ -e /appex/bin/lotServer.sh ]]; then
-		bash <(wget --no-check-certificate -qO- https://github.com/MoeClub/lotServer/raw/master/Install.sh) uninstall
-	fi
-	clear
-	echo -e "${Info}:清除加速完成。"
-	sleep 1s
-}
+
 
 #优化系统配置
 optimizing_system(){
@@ -208,11 +101,11 @@ net.ipv4.ip_forward = 1
 	echo "* soft nofile 1000000
 * hard nofile 1000000">>/etc/security/limits.conf
 	echo "ulimit -SHn 1000000">>/etc/profile
-    read -p "需要重启VPS后，才能生效系统优化配置，是否现在重启 root server ? [Y/n] :" yn
+    read -p "Need to reboot server ? [Y/n] :" yn
 	[ -z "${yn}" ] && yn="y"
 	if [[ $yn == [Yy] ]]; then
         ulimit -SHn 1000000
-		echo -e "${Info} VPS 重启中..."
+		echo -e "${Info} Rebooting now..."
 		reboot
 	fi
 }
@@ -245,17 +138,17 @@ echo -e " v2ray install controller ${Red_font_prefix}[v${sh_ver}]${Font_color_su
   -- leejungwoo --
   
  ${Green_font_prefix}0.${Font_color_suffix} Update Shell
-————————————内核管理————————————
- ${Green_font_prefix}1.${Font_color_suffix} 安装 BBR/BBR魔改版内核
- ${Green_font_prefix}2.${Font_color_suffix} 安装 BBRplus版内核 
+————————————kernel manage————————————
+ ${Green_font_prefix}1.${Font_color_suffix} V2ray install
+ ${Green_font_prefix}2.${Font_color_suffix} V2ray reinstall
  ${Green_font_prefix}3.${Font_color_suffix} 安装 Lotserver(锐速)内核
-————————————加速管理————————————
+————————————Acc. kernel mange————————————
  ${Green_font_prefix}4.${Font_color_suffix} 使用BBR加速
  ${Green_font_prefix}5.${Font_color_suffix} 使用BBR魔改版加速
  ${Green_font_prefix}6.${Font_color_suffix} 使用暴力BBR魔改版加速(不支持部分系统)
  ${Green_font_prefix}7.${Font_color_suffix} 使用BBRplus版加速
  ${Green_font_prefix}8.${Font_color_suffix} 使用Lotserver(锐速)加速
-————————————杂项管理————————————
+————————————addtional funtion————————————
  ${Green_font_prefix}9.${Font_color_suffix} 卸载全部加速 delete all
  ${Green_font_prefix}10.${Font_color_suffix} 系统配置优化 system optimaize
  ${Green_font_prefix}11.${Font_color_suffix} 退出脚本 exit
@@ -263,23 +156,25 @@ echo -e " v2ray install controller ${Red_font_prefix}[v${sh_ver}]${Font_color_su
 echo
 	check_status
 	if [[ ${kernel_status} == "noinstall" ]]; then
-		echo -e " Current state: ${Green_font_prefix}Not install ${Font_color_suffix} Acc. kernel ${Red_font_prefix} Please install kernel first${Font_color_suffix}"
+		echo -e " Current state: ${Green_font_prefix}Not install${Font_color_suffix} Acc. kernel ${Red_font_prefix} Please install kernel first${Font_color_suffix}"
 	else
-		echo -e " ${release} | ${version} | ${bit} | ${kernel_version} | 
-        Current state: ${Green_font_prefix} istalled${Font_color_suffix} ${_font_prefix}${kernel_status}${Font_color_suffix} 加速内核kernel , ${Green_font_prefix}${run_status}${Font_color_suffix}"
+		echo -e " 
+        This System OS : ${release} | version : ${version} | ${bit} | Kernel : ${kernel_version} | 
+        Current state: ${Green_font_prefix}istalled${Font_color_suffix} ${_font_prefix}${kernel_status}${Font_color_suffix} |
+        Acc. kernel state : ${Green_font_prefix}${run_status}${Font_color_suffix}"
 		
 	fi
 echo
-read -p " 请输入数字 [0-11]:" num
+read -p " please input number [0-11]:" num
 case "$num" in
 	0)
 	Update_Shell
 	;;
 	1)
-	check_sys_bbr
+	v2ray-install
 	;;
 	2)
-	check_sys_bbrplus
+	v2ray-reinstall
 	;;
 	3)
 	check_sys_Lotsever
@@ -310,73 +205,12 @@ case "$num" in
 	;;
 	*)
 	clear
-	echo -e "${Error}:请输入正确数字 [0-11]"
+	echo -e "${Error}:wrong input! input number again [0-11]"
 	sleep 5s
 	start_menu
 	;;
 esac
 }
-#############内核管理组件#############
-
-#删除多余内核
-detele_kernel(){
-	if [[ "${release}" == "centos" ]]; then
-		rpm_total=`rpm -qa | grep kernel | grep -v "${kernel_version}" | grep -v "noarch" | wc -l`
-		if [ "${rpm_total}" > "1" ]; then
-			echo -e "检测到 ${rpm_total} 个其余内核，开始卸载..."
-			for((integer = 1; integer <= ${rpm_total}; integer++)); do
-				rpm_del=`rpm -qa | grep kernel | grep -v "${kernel_version}" | grep -v "noarch" | head -${integer}`
-				echo -e "开始卸载 ${rpm_del} 内核..."
-				rpm --nodeps -e ${rpm_del}
-				echo -e "卸载 ${rpm_del} 内核卸载完成，继续..."
-			done
-			echo --nodeps -e "内核卸载完毕，继续..."
-		else
-			echo -e " 检测到 内核 数量不正确，请检查 !" && exit 1
-		fi
-	elif [[ "${release}" == "debian" || "${release}" == "ubuntu" ]]; then
-		deb_total=`dpkg -l | grep linux-image | awk '{print $2}' | grep -v "${kernel_version}" | wc -l`
-		if [ "${deb_total}" > "1" ]; then
-			echo -e "检测到 ${deb_total} 个其余内核，开始卸载..."
-			for((integer = 1; integer <= ${deb_total}; integer++)); do
-				deb_del=`dpkg -l|grep linux-image | awk '{print $2}' | grep -v "${kernel_version}" | head -${integer}`
-				echo -e "开始卸载 ${deb_del} 内核..."
-				apt-get purge -y ${deb_del}
-				echo -e "卸载 ${deb_del} 内核卸载完成，继续..."
-			done
-			echo -e "内核卸载完毕，继续..."
-		else
-			echo -e " 检测到 内核 数量不正确，请检查 !" && exit 1
-		fi
-	fi
-}
-
-#更新引导
-BBR_grub(){
-	if [[ "${release}" == "centos" ]]; then
-        if [[ ${version} = "6" ]]; then
-            if [ ! -f "/boot/grub/grub.conf" ]; then
-                echo -e "${Error} /boot/grub/grub.conf 找不到，请检查."
-                exit 1
-            fi
-            sed -i 's/^default=.*/default=0/g' /boot/grub/grub.conf
-        elif [[ ${version} = "7" ]]; then
-            if [ ! -f "/boot/grub2/grub.cfg" ]; then
-                echo -e "${Error} /boot/grub2/grub.cfg 找不到，请检查."
-                exit 1
-            fi
-            grub2-set-default 0
-        fi
-    elif [[ "${release}" == "debian" || "${release}" == "ubuntu" ]]; then
-        /usr/sbin/update-grub
-    fi
-}
-
-#############内核管理组件#############
-
-
-
-#############系统检测组件#############
 
 #检查系统
 check_sys(){
@@ -412,106 +246,6 @@ check_version(){
 	fi
 }
 
-#检查安装bbr的系统要求
-check_sys_bbr(){
-	check_version
-	if [[ "${release}" == "centos" ]]; then
-		if [[ ${version} -ge "6" ]]; then
-			installbbr
-		else
-			echo -e "${Error} BBR内核不支持当前系统The kernel does not support the current system ${release} ${version} ${bit} !" && exit 1
-		fi
-	elif [[ "${release}" == "debian" ]]; then
-		if [[ ${version} -ge "8" ]]; then
-			installbbr
-		else
-			echo -e "${Error} BBR内核不支持当前系统The kernel does not support the current system ${release} ${version} ${bit} !" && exit 1
-		fi
-	elif [[ "${release}" == "ubuntu" ]]; then
-		if [[ ${version} -ge "14" ]]; then
-			installbbr
-		else
-			echo -e "${Error} BBR内核不支持当前系统The kernel does not support the current system ${release} ${version} ${bit} !" && exit 1
-		fi
-	else
-		echo -e "${Error} BBR内核不支持当前系统The kernel does not support the current system ${release} ${version} ${bit} !" && exit 1
-	fi
-}
-
-check_sys_bbrplus(){
-	check_version
-	if [[ "${release}" == "centos" ]]; then
-		if [[ ${version} -ge "6" ]]; then
-			installbbrplus
-		else
-			echo -e "${Error} BBRplus内核不支持当前系统The kernel does not support the current system ${release} ${version} ${bit} !" && exit 1
-		fi
-	elif [[ "${release}" == "debian" ]]; then
-		if [[ ${version} -ge "8" ]]; then
-			installbbrplus
-		else
-			echo -e "${Error} BBRplus内核不支持当前系统The kernel does not support the current system ${release} ${version} ${bit} !" && exit 1
-		fi
-	elif [[ "${release}" == "ubuntu" ]]; then
-		if [[ ${version} -ge "14" ]]; then
-			installbbrplus
-		else
-			echo -e "${Error} BBRplus内核不支持当前系统The kernel does not support the current system ${release} ${version} ${bit} !" && exit 1
-		fi
-	else
-		echo -e "${Error} BBRplus内核不支持当前系统The kernel does not support the current system ${release} ${version} ${bit} !" && exit 1
-	fi
-}
-
-
-#检查安装Lotsever的系统要求
-check_sys_Lotsever(){
-	check_version
-	if [[ "${release}" == "centos" ]]; then
-		if [[ ${version} == "6" ]]; then
-			kernel_version="2.6.32-504"
-			installlot
-		elif [[ ${version} == "7" ]]; then
-			yum -y install net-tools
-			kernel_version="3.10.0-327"
-			installlot
-		else
-			echo -e "${Error} Lotsever不支持当前系统 ${release} ${version} ${bit} !" && exit 1
-		fi
-	elif [[ "${release}" == "debian" ]]; then
-		if [[ ${version} = "7" || ${version} = "8" ]]; then
-			if [[ ${bit} == "x64" ]]; then
-				kernel_version="3.16.0-4"
-				installlot
-			elif [[ ${bit} == "x32" ]]; then
-				kernel_version="3.2.0-4"
-				installlot
-			fi
-		elif [[ ${version} = "9" ]]; then
-			if [[ ${bit} == "x64" ]]; then
-				kernel_version="4.9.0-4"
-				installlot
-			fi
-		else
-			echo -e "${Error} Lotsever不支持当前系统 ${release} ${version} ${bit} !" && exit 1
-		fi
-	elif [[ "${release}" == "ubuntu" ]]; then
-		if [[ ${version} -ge "12" ]]; then
-			if [[ ${bit} == "x64" ]]; then
-				kernel_version="4.4.0-47"
-				installlot
-			elif [[ ${bit} == "x32" ]]; then
-				kernel_version="3.13.0-29"
-				installlot
-			fi
-		else
-			echo -e "${Error} Lotsever不支持当前系统 ${release} ${version} ${bit} !" && exit 1
-		fi
-	else
-		echo -e "${Error} Lotsever不支持当前系统 ${release} ${version} ${bit} !" && exit 1
-	fi
-}
-
 check_status(){
 	kernel_version=`uname -r | awk -F "-" '{print $1}'`
 	kernel_version_full=`uname -r`
@@ -534,7 +268,7 @@ check_status(){
 				run_status="启动失败 not ruuning"
 			fi
 		else 
-			run_status="未安装加速模块No acceleration module installed-ls"
+			run_status="acceleration module not installed-ls"
 		fi
 	elif [[ ${kernel_status} == "BBR" ]]; then
 		run_status=`grep "net.ipv4.tcp_congestion_control" /etc/sysctl.conf | awk -F "=" '{print $2}'`
